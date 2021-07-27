@@ -1,0 +1,169 @@
+<Chat_Room_Screen>:
+    name: "chat_room"
+    # canvas:
+    #     Rectangle:
+    #         source: "assets\chat_bg\chat_bg.png" 
+    #         # source:"images/calc3opy.jpg"
+    #         pos: self.pos
+    #         size: self.size
+    Image:
+        source: "assets\chat_bg\light.jpg"
+        size: 360,640
+
+    MDBoxLayout:
+        id: lay
+        # md_bg_color: app.theme_cls.primary_color
+        orientation:'vertical'
+
+        MDToolbar: 
+            id:profile_bar
+            title: "@username"
+            size_hint: 1,0.08
+            left_action_items: [ ["arrow-left", lambda x:app.screen_manager.change_screen("home")]] 
+            elevation: 5
+                  
+        BoxLayout:
+            id: root_chatroom
+            orientation: 'vertical'
+            padding: dp(5), dp(5)
+            RecycleView:
+                id: rv
+                data: []
+                viewclass: 'Card'
+                do_scroll_x: False
+
+                RecycleBoxLayout:
+                    id: all_msgs
+                    orientation: 'vertical'
+                    spacing: "16dp"
+                    size_hint_y: None
+                    size: self.minimum_size
+                    default_size_hint: 1, None
+                    # magic value for the default height of the message
+                    default_size: 0, 38
+                    key_size: '_size'
+            
+            FloatLayout:
+                size_hint_y: None
+                height: 0
+                
+                Button:
+                    size_hint_y: None
+                    height: self.texture_size[1]
+                    opacity: 0 if not self.height else 1
+                    text:
+                        (
+                        'go to last message'
+                        if rv.height < all_msgs.height and rv.scroll_y > 0 else
+                        ''
+                        )
+                    pos_hint: {'pos': (0, 0)}
+                    on_release: root.scroll_bottom()    
+            # MDIconButton:
+            #     id: label
+            #     icon:"arrow-down-drop-circle-outline"
+            #     on_release: print("icon pressde")
+            MDCard:
+                id:send_card
+                size_hint: None,None
+                size: root_chatroom.size[0], msg_textbox.size[1]
+                pos_hint: {"center_x": .5, "center_y": .5}
+                spacing: dp(2)
+                padding: dp(5)
+
+                MDIconButton:
+                    icon:"plus"
+                    on_release: root.feachers()
+
+                ScrollView:        
+                    MDTextField:
+                        id:msg_textbox
+                        multiline: True
+                        max_text_length: 250
+                        on_text: root.chat_textbox()
+                    
+                    
+                MDIconButton:
+                    icon:"send"
+                    on_release: root.send_msg_btn(msg_textbox.text,"")
+        # FloatLayout:
+        #     # size_hint_y: None
+        #     # height: 0    
+        #     MDIconButton:
+        #         icon: "android"
+        #         size_hint_y: None
+        #         # height: self.texture_size[1]
+        #         # opacity: 1 if not self.height else 1                      
+        #         user_font_size: "64sp"
+        #         pos_hint: {'pos': (1, 0.8)}
+        #         on_release: print("i am pressed") 
+<Card@BoxLayout>:
+    orientation: 'vertical'
+    spacing: "4dp" 
+    text: ''
+    side: 'left'
+    time: "20-05-2021 04:23"
+    img: "" 
+    status: "msg"
+
+    MDCard:
+        id:card
+        orientation: "vertical"
+        padding: "8dp" if root.status== "msg" else "1dp"
+        elevation:0
+        ripple_behavior:True if root.status== "msg" else False
+        size_hint: None, None
+        size: [self.minimum_width,self.minimum_height] if root.status == "img" else [self.minimum_width,self.minimum_height]
+        pos_hint: {'x': 0, 'center_y': .5} if root.side == 'left' else {'right': 1, 'center_y': .5}
+        radius: ([18,18,18,0] if root.side == 'left' else [18,18,0,18 ]) if root.status == "msg" else [0, 0, 0, 0]
+        md_bg_color:([227/255.0,254/255.0,199/255.0,1] if root.side == 'right' else [1,1,1,1]) if root.status == "msg" else [1, 1, 1, 1]
+        height:self.minimum_height if root.status == "msg" else "42dp"
+        width:self.minimum_width if root.status == "msg" else "42dp"
+        AnchorLayout:
+            size_hint: None, None
+            height: label.height + dp(4) if root.status == "msg" else dp(42)
+            width: label.width + dp(2) if root.status == "msg" else dp(42)
+            MDLabel:
+                id:label 
+                text: root.text if root.status == "msg" else ""
+                text_size: (None if self.width<Window.width*.7 else Window.width*.7+1, None) if root.status == "msg" else (None,None)
+                size_hint: None,None
+                size:self.texture_size
+            Button:
+                id:profile_image
+                background_normal: root.img if root.status != "msg" else ""
+                background_down: root.img if root.status != "msg" else ""
+                background_color: [0, 0, 0, 0] if root.status != "img" else [1, 1, 1, 1]
+                on_release: app.screen_manager.get_screen("home").open_dialog(root.text,root.img) if root.status != "msg" else None
+    MDLabel:
+        text: root.time
+        theme_text_color: "Hint"
+        # color: [249/255,249/255,249/255,1]
+        font_style: "Overline"
+        halign: "left" if root.side == 'left' else "right"
+<Img@BoxLayout>:
+    orientation: 'vertical'
+    height: self.minimum_height
+    spacing: "4dp"
+    img_path: ''
+    side: 'left'
+    time: ''    
+    MDCard:                
+        orientation:'vertical'
+        size_hint: None, None
+        size: "150dp", "150dp"
+        pos_hint: {'x': 0, 'center_y': .5} if root.side == 'left' else {'right': 1, 'center_y': .5}
+
+        Button:
+            id:profile_image
+            background_normal: 
+            background_down: root.img_path
+            on_release: print("View Image")
+    MDLabel:
+        text: root.time
+        theme_text_color: "Hint"
+        font_style: "Overline"
+        halign: "left" if root.side == 'left' else "right"
+
+                
+                

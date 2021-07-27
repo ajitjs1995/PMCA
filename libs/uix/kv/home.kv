@@ -1,0 +1,72 @@
+<Home_Screen>:
+    name: "home"
+    BoxLayout:
+        orientation:'vertical'
+
+        MDToolbar:
+            title: app.APP_NAME
+            size_hint: 1,.08
+            right_action_items: [ ["account", lambda x:app.screen_manager.change_screen("profile")]] 
+            elevation: 5
+        
+        MDBottomNavigation:
+            id: android_tabs
+            
+            MDBottomNavigationItem:        
+                name: "chat_scr"
+                text: f"CHATS" 
+                icon: "chat"
+                # FloatLayout:
+                RecycleView:
+                    id: rv
+                    data: []
+                    viewclass: 'ChatListItem'
+                    do_scroll_x: False
+
+                    RecycleBoxLayout:
+                        id: box
+                        orientation: 'vertical'
+                        # spacing: "8dp"
+                        size_hint_y: None
+                        height: self.minimum_size[1]
+                        # size: self.minimum_size
+                        default_size_hint: 1, None
+                        # magic value for the default height of the message
+                        default_size: None,None
+                        # key_size: '_size'
+        
+            MDBottomNavigationItem:
+                name: "search_scr"
+                text: f"SEARCH"
+                icon: "account-search"
+
+                MDBoxLayout:
+                    orientation: 'vertical'
+                    spacing: dp(5)
+                    padding: dp(10)
+
+                    MDBoxLayout:
+                        adaptive_height: True
+
+                        MDTextField:
+                            id: search_field
+                            hint_text: 'Search'
+                        
+                        MDIconButton:
+                            icon: 'magnify'
+                            on_release: root.search_account(search_field.text)
+
+                    ScrollView:
+                        MDList:
+                            id: search_items
+<HomeList@MDList>
+    name: ''
+    path: ''
+    TwoLineAvatarListItem:
+        text: root.name        
+        on_release: app.screen_manager.get_screen("home").chat_room(self.text)
+        ImageLeftWidget:
+            source:root.path
+            # on_press: app.screen_manager.get_screen("home").open_dialog(self.text.self.source)
+            on_touch_down:
+                if self.collide_point(*args[1].pos): app.screen_manager.get_screen("home").open_dialog(root.name,self.source)        
